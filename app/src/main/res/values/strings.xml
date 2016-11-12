@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">一键斗图</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_happy">happy</string>
+    <string name="action_sad">sad</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="action_refresh">refresh</string>
+</resources>
