@@ -1,4 +1,4 @@
-package util;
+package com.echozyk.doutu.util;
 
 import android.content.Context;
 import android.graphics.PointF;

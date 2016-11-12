@@ -1,4 +1,4 @@
-package adapter;
+package com.echozyk.doutu.adapter;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
