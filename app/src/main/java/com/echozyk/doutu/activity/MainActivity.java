@@ -195,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initLeanCloud() {
-        AVOSCloud.initialize(this, "58BLWx0RI4RRB3EyL9pcp6Mt-gzGzoHsz", "QLvRt5jCwFRWTdS78rcQzz65");
+        AVOSCloud.initialize(this, "6wPbscYngBI12ITri23g6Rc9-gzGzoHsz", "8n00oe7bwgBqhvCBmrFOaNSf");
         AVAnalytics.trackAppOpened(getIntent());
     }
 
