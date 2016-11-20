@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -19,7 +20,12 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.avos.avoscloud.AVAnalytics;
 import com.avos.avoscloud.AVException;
@@ -32,6 +38,7 @@ import com.avos.avoscloud.SaveCallback;
 import com.echozyk.doutu.adapter.RecyclerAdapter;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.orhanobut.logger.Logger;
+import com.wandoujia.ads.sdk.Ads;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -59,6 +66,19 @@ public class MainActivity extends AppCompatActivity {
     private static RecyclerAdapter adapter;
     private static int RESULT_LOAD_IMAGE = 0x01;
 
+    //豌豆荚广告
+    private static final String APP_ID = "100045358";
+    private static final String SECRET_KEY = "1bb9e388f26aaa89ae998b5634773080";
+    private static final String BANNER = "56e298e5c3b22627595427748c96ce24";
+    private static final String INTERSTITIAL = "0fe20052113b235735daee5d7afdf302";
+
+    private static final String LEAN_APP_ID = "6wPbscYngBI12ITri23g6Rc9-gzGzoHsz";
+    private static final String LEAN_SECRET_KEY = "8n00oe7bwgBqhvCBmrFOaNSf";
+
+    private GestureDetector mGestureDetector;
+    private static final int FLING_MIN_DISTANCE = 20;   //最小距离
+    private static final int FLING_MIN_VELOCITY = 0;  //最小速度
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -73,9 +93,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initLeanCloud();
         initUI();
+        initAD();
         getData();
         getMessage();
-
+        GestureDetect();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -95,6 +116,90 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void GestureDetect() {
+        GestureDetector.SimpleOnGestureListener myGestureListener = new GestureDetector.SimpleOnGestureListener(){
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+                Log.e("<--滑动测试-->", "开始滑动");
+                float x = e1.getX()-e2.getX();
+                float x2 = e2.getX()-e1.getX();
+                if(x>FLING_MIN_DISTANCE&&Math.abs(velocityX)>FLING_MIN_VELOCITY){
+                    Toast.makeText(MainActivity.this, "向左手势", Toast.LENGTH_SHORT).show();
+//                    Ads.showInterstitial(MainActivity.this, INTERSTITIAL);
+
+                }else if(x2>FLING_MIN_DISTANCE&&Math.abs(velocityX)>FLING_MIN_VELOCITY){
+                    Toast.makeText(MainActivity.this, "向右手势", Toast.LENGTH_SHORT).show();
+                }
+
+                return false;
+            };
+        };
+        mGestureDetector = new GestureDetector(this, myGestureListener);
+    }
+
+    private void initAD() {
+        new AsyncTask<Void, Void, Boolean>() {
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                try {
+                    Ads.init(MainActivity.this, APP_ID, SECRET_KEY);
+                    return true;
+                } catch (Exception e) {
+                    Log.e("ads-sample", "error", e);
+                    return false;
+                }
+            }
+
+            @Override
+            protected void onPostExecute(Boolean success) {
+                final ViewGroup container = (ViewGroup) findViewById(R.id.banner_container);
+
+                if (success) {
+                    /**
+                     * pre load
+                     */
+                    Ads.preLoad(BANNER, Ads.AdFormat.banner);
+                    Ads.preLoad(INTERSTITIAL, Ads.AdFormat.interstitial);
+//                    Ads.preLoad(APP_WALL, Ads.AdFormat.appwall);
+
+                    /**
+                     * add ad views
+                     */
+                    View bannerView = Ads.createBannerView(MainActivity.this, BANNER);
+                    container.addView(bannerView, new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    ));
+
+//                    Button btI = new Button(MainActivity.this);
+//                    btI.setText("interstitial");
+//                    btI.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            Ads.showInterstitial(MainActivity.this, INTERSTITIAL);
+//                        }
+//                    });
+//                    container.addView(btI);
+//
+//                    Button btW = new Button(MainActivity.this);
+//                    btW.setText("app wall");
+//                    btW.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View v) {
+//                            Ads.showAppWall(MainActivity.this, APP_WALL);
+//                        }
+//                    });
+//                    container.addView(btW);
+                } else {
+                    TextView errorMsg = new TextView(MainActivity.this);
+                    errorMsg.setText("init failed");
+                    container.addView(errorMsg);
+                }
+            }
+        }.execute();
     }
 
     @Override
@@ -136,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
 //                AVFile imageFile = AVFile.withAbsoluteLocalPath(System.currentTimeMillis() + ".png", picPath);
-                AVFile imageFile = AVFile.withFile(System.currentTimeMillis()+".png",compressedImageFile);
+                AVFile imageFile = AVFile.withFile(System.currentTimeMillis() + ".png", compressedImageFile);
                 imageFile.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(AVException e) {
@@ -160,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                adapter = new RecyclerAdapter(swipeRefreshLayout,urlArrayList,objectIdArrayList, MainActivity.this);
+                adapter = new RecyclerAdapter(swipeRefreshLayout, urlArrayList, objectIdArrayList, MainActivity.this);
                 recyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
@@ -179,10 +284,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void done(List<AVObject> list, AVException e) {
                 urlArrayList.clear();
-                for(AVObject file :list){
+                for (AVObject file : list) {
                     url = file.getString("url");
                     objectId = file.getObjectId();
-                    Log.e("objectId",objectId);
+                    Log.e("objectId", objectId);
                     urlArrayList.add(url);
                     objectIdArrayList.add(objectId);
                     handler.sendEmptyMessage(0x01);
@@ -195,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initLeanCloud() {
-        AVOSCloud.initialize(this, "6wPbscYngBI12ITri23g6Rc9-gzGzoHsz", "8n00oe7bwgBqhvCBmrFOaNSf");
+        AVOSCloud.initialize(this, LEAN_APP_ID, LEAN_SECRET_KEY);
         AVAnalytics.trackAppOpened(getIntent());
     }
 
@@ -290,5 +395,10 @@ public class MainActivity extends AppCompatActivity {
         ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
         Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
         return bitmap;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return mGestureDetector.onTouchEvent(event);
     }
 }
