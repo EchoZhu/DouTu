@@ -5,4 +5,9 @@
     <string name="action_sad">sad</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="action_refresh">refresh</string>
+    <string name="will_delete">真的要删除这个表情吗？</string>
+    <string name="delte_confirm">给老子删了！</string>
+    <string name="delte_confirm_nop">给老子留着</string>
+    <string name="delte_tips">我的小祖宗，正在为您删除～</string>
+    <string name="delted">报告！听您的，已经给删了</string>
 </resources>

@@ -135,20 +135,20 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             @Override
             public boolean onLongClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setMessage("Will you delete it?")
+                builder.setMessage(context.getString(R.string.will_delete))
                         .setCancelable(false)
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(context.getString(R.string.delte_confirm), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 progressDialog = new ProgressDialog(context);
-                                progressDialog.setCancelable(false);
-                                progressDialog.setMessage("deleting...");
+                                progressDialog.setCancelable(true);
+                                progressDialog.setMessage(context.getString(R.string.delte_tips));
                                 progressDialog.show();
                                 deleteThePicFromServer();
 
                             }
                         })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        .setNegativeButton(context.getString(R.string.delte_confirm_nop), new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
@@ -170,7 +170,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                                 @Override
                                 public void done(AVException e) {
                                     progressDialog.dismiss();
-                                    Snackbar.make(swipeRefreshLayout, "The image is deleted completely", Snackbar.LENGTH_SHORT)
+                                    Snackbar.make(swipeRefreshLayout, context.getString(R.string.delted), Snackbar.LENGTH_SHORT)
                                             .show();
                                     notifyDataSetChanged();
 //                                    swipeRefreshLayout.setOnRefreshListener.onRefresh();
